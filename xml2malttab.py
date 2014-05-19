@@ -71,9 +71,9 @@ class Reader(object):
 
 class Lexicon(object):
     def __init__(self, dbname):
-        self.dbname = dbname
-        db_exists = os.path.isfile(dbname)
-        self.con = sqlite3.connect(dbname)
+        self._dbname = dbname
+        db_exists = os.path.isfile(_dbname)
+        self.con = sqlite3.connect(_dbname)
         self.cur = self.con.cursor()
 
         if not db_exists:
