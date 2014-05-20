@@ -62,7 +62,7 @@ class Reader(object):
         self._cdata += content
 
     def read(self, filename):
-        f = open(filename)
+        f = self.open_file(filename)
         content = f.read()
         f.close()
         content = content.replace('encoding="windows-1251"', 'encoding="utf-8"')
@@ -76,12 +76,14 @@ class Reader(object):
 
         return self._sentences
 
+    def open_file(self, filename):
+        return open(filename)
 
 class Translator(object):
     train_set_postfix = "_train"
     test_set_postfix = "_test"
 
-    def __init__(self, output):
+    def __init__(self, output = "corpus"):
         self._output = output
         self._files_limit = 1000
         self._test_set = None
@@ -101,21 +103,24 @@ class Translator(object):
         self._test_set = corpus[-fold_size:]
 
     def print_train_set(self):
-        self._print_to_file(self._train_set, self.train_set_postfix)
+        return self._print_to_file(self._train_set, self.train_set_postfix)
 
     def print_test_set(self):
-        self._print_to_file(self._test_set, self.test_set_postfix)
+        return self._print_to_file(self._test_set, self.test_set_postfix)
 
     def _print_to_file(self, list_to_print, out_postfix):
-        with open(self._output + out_postfix + ".conll", "w+") as f:
+        filename = self._output + out_postfix + ".conll"
+        with open(filename, "w+") as f:
             for sentence in list_to_print:
                 for word in sentence:
+                    if len(word) < 2: continue
                     w = word[0] or 'FANTOM'
                     p = '.'.join([word[1].pos] + sorted(word[1].feat & selected_feat))
                     l = word[1].link if word[1].dom else 'ROOT'
                     d = str(word[1].dom)
-                    f.write('\t'.join([w, p, d, l]))
+                    f.write('\t'.join([w, p, d, l]).encode("utf-8"))
                     f.write('')
+        return filename
 
 
 if __name__ == '__main__':
@@ -123,8 +128,8 @@ if __name__ == '__main__':
     files = glob.glob(args.path + '/*/*/*.tgt')
     translator = Translator(args.output)
     translator.translate(files)
-    translator.print_test_set()
     translator.print_train_set()
+    translator.print_test_set()
 
 
 
