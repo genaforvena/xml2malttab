@@ -1,8 +1,6 @@
 # -*- coding: utf8 -*-
 __author__ = 'imozerov'
 
-import os
-import sqlite3
 import xml.parsers.expat
 import glob
 import argparse
@@ -12,6 +10,7 @@ from rus_dicts import *
 def parse_command_line_arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument('path')
+    parser.add_argument('output')
     return parser.parse_args()
 
 
@@ -29,7 +28,7 @@ class Reader(object):
                 if features[i] in feat_ru_en:
                     features[i] = feat_ru_en[features[i]]
 
-            lemma = lemma=attr['LEMMA'].lower() if 'LEMMA' in attr else ''
+            lemma = lemma = attr['LEMMA'].lower() if 'LEMMA' in attr else ''
             link = attr['LINK'] if 'LINK' in attr else None
 
             dom = int(attr['DOM']) if attr['DOM'] != '_root' else 0
@@ -77,32 +76,57 @@ class Reader(object):
 
         return self._sentences
 
+
+class Translator(object):
+    train_set_postfix = "_train"
+    test_set_postfix = "_test"
+
+    def __init__(self, output):
+        self._output = output
+        self._files_limit = 1000
+        self._test_set = None
+        self._train_set = None
+
+    def translate(self, files):
+        corpus = []
+        for file in files[0:800]:
+            R = Reader()
+            sentences = R.read(file)
+            corpus.extend(sentences)
+            del (R)
+
+        fold_size = int(round(len(corpus) / 10))
+
+        self._train_set = corpus[0:-fold_size]
+        self._test_set = corpus[-fold_size:]
+
+    def print_train_set(self):
+        self._print_to_file(self._train_set, self.train_set_postfix)
+
+    def print_test_set(self):
+        self._print_to_file(self._test_set, self.test_set_postfix)
+
+    def _print_to_file(self, list_to_print, out_postfix):
+        with open(self._output + out_postfix + ".conll", "w+") as f:
+            for sentence in list_to_print:
+                for word in sentence:
+                    w = word[0] or 'FANTOM'
+                    p = '.'.join([word[1].pos] + sorted(word[1].feat & selected_feat))
+                    l = word[1].link if word[1].dom else 'ROOT'
+                    d = str(word[1].dom)
+                    f.write('\t'.join([w, p, d, l]))
+                    f.write('')
+
+
 if __name__ == '__main__':
     args = parse_command_line_arguments()
     files = glob.glob(args.path + '/*/*/*.tgt')
+    translator = Translator(args.output)
+    translator.translate(files)
+    translator.print_test_set()
+    translator.print_train_set()
 
-    corpus = []
-    for file in files[0:800]:
-        R = Reader()
-        sentences = R.read(file)
-        corpus.extend(sentences)
-        del(R)
 
-    fold_size = int(round(len(corpus) / 10))
 
-    train_set = corpus[0:-fold_size]
-    test_set = corpus[-fold_size:]
 
-    del(corpus)
-
-    a_set = test_set
-
-    for sentence in a_set:
-        for word in sentence:
-            w = word[0] or 'FANTOM'
-            p = '.'.join([word[1].pos] + sorted(word[1].feat & selected_feat))
-            l = word[1].link if word[1].dom else 'ROOT'
-            d = str(word[1].dom)
-            print('\t'.join([w, p, d, l]))
-            print('')
 
