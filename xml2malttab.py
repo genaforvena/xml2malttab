@@ -88,7 +88,7 @@ if __name__ == '__main__':
         corpus.extend(sentences)
         del(R)
 
-    fold_size = round(len(corpus) / 10)
+    fold_size = int(round(len(corpus) / 10))
 
     train_set = corpus[0:-fold_size]
     test_set = corpus[-fold_size:]
