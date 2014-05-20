@@ -1,11 +1,19 @@
+# -*- coding: utf8 -*-
 __author__ = 'imozerov'
 
 import os
 import sqlite3
 import xml.parsers.expat
 import glob
-from optparse import OptionParser
+import argparse
 from rus_dicts import *
+
+
+def parse_command_line_arguments():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('path')
+    return parser.parse_args()
+
 
 class Reader(object):
     def __init__(self):
@@ -55,7 +63,7 @@ class Reader(object):
         self._cdata += content
 
     def read(self, filename):
-        f = open(filename, encoding='windows-1251')
+        f = open(filename)
         content = f.read()
         f.close()
         content = content.replace('encoding="windows-1251"', 'encoding="utf-8"')
@@ -69,58 +77,32 @@ class Reader(object):
 
         return self._sentences
 
-class Lexicon(object):
-    def __init__(self, dbname):
-        self._dbname = dbname
-        db_exists = os.path.isfile(_dbname)
-        self.con = sqlite3.connect(_dbname)
-        self.cur = self.con.cursor()
-
-        if not db_exists:
-            self.create_db()
-
-    def create_db(self):
-        sql = '''
-        create table words(
-            id integer primary key autoincrement,
-            lemma text,
-            pos text,
-            form text,
-            info text,
-            freq integer
-        );
-        create index words_lemma_form_info on words(lemma, form, info);
-        '''
-        [self.cur.execute(st) for st in sql.split(';') if len(st.strip())]
-
-    def index(self, filename):
-        sentences = Reader().read(filename)
-        for sentence in sentences:
-            for word in sentence:
-                feat = ' '.join(word[1].feat)
-                self.cur.execute('select id from words where lemma = ? and form = ? and pos = ? and info = ?', (word[1].lemma, word[0], word[1].pos, feat))
-                row = self.cur.fetchone()
-                if row is None:
-                    self.cur.execute('insert into words (lemma, pos, form, info, freq) values (?, ?, ?, ?, 1)', (word[1].lemma, word[1].pos, word[0], feat))
-                else:
-                    self.cur.execute('update words set freq = freq + 1 where id = ?', row)
-
-    def close(self):
-        self.con.commit()
-        self.con.close()
-
 if __name__ == '__main__':
-    parser = OptionParser()
-    parser.usage = '%prog [options] inputfile'
-    parser.add_option('-L', '--construct-lexicon', action = 'store_const', const = True	, dest = 'lexicon', help = 'construct lexicon')
+    args = parse_command_line_arguments()
+    files = glob.glob(args.path + '/*/*/*.tgt')
 
-    (options, args) = parser.parse_args()
+    corpus = []
+    for file in files[0:800]:
+        R = Reader()
+        sentences = R.read(file)
+        corpus.extend(sentences)
+        del(R)
 
-    if options.lexicon:
-        l = Lexicon('tmp/lexicon')
-        files = glob.glob('res/*/*/*.tgt')
-        for file in files:
-            l.index(file)
+    fold_size = round(len(corpus) / 10)
 
-        l.close()
+    train_set = corpus[0:-fold_size]
+    test_set = corpus[-fold_size:]
+
+    del(corpus)
+
+    a_set = test_set
+
+    for sentence in a_set:
+        for word in sentence:
+            w = word[0] or 'FANTOM'
+            p = '.'.join([word[1].pos] + sorted(word[1].feat & selected_feat))
+            l = word[1].link if word[1].dom else 'ROOT'
+            d = str(word[1].dom)
+            print('\t'.join([w, p, d, l]))
+            print('')
 
