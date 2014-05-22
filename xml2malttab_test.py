@@ -7,12 +7,13 @@ from xml2malttab import *
 import unittest
 import mock
 import os
+import sys
 
 class TranslatorTest(unittest.TestCase):
     filename = None
 
     def testTanslate(self):
-        test_out_first_line = 'Кабинет\tS\t2\tпредик'
+        test_out_first_line = 'Кабинет\tS\t2\tпредик\n'
         test_in = '<S ID="8"><W DOM="2" FEAT="S ЕД МУЖ ИМ НЕОД" ID="1" LEMMA="КАБИНЕТ" LINK="предик">Кабинет</W><W DOM="_root" FEAT="V НЕСОВ ИЗЪЯВ ПРОШ ЕД МУЖ" ID="2" LEMMA="ОТЛИЧАТЬСЯ">отличался</W><W DOM="2" FEAT="S ЕД ЖЕН ТВОР НЕОД" ID="3" LEMMA="СКРОМНОСТЬ" LINK="2-компл">скромностью</W>,<W DOM="3" FEAT="A ЕД ЖЕН ТВОР" ID="4" LEMMA="ПРИСУЩИЙ" LINK="опред">присущей</W><W DOM="4" FEAT="S ЕД МУЖ ДАТ ОД" ID="5" LEMMA="СЕМЕН" LINK="1-компл">Семену</W><W DOM="5" FEAT="S ЕД МУЖ ДАТ ОД" ID="6" LEMMA="ЕРЕМЕЕВИЧ" LINK="аппоз">Еремеевичу</W>.</S>'
 
         with mock.patch('xml2malttab.Reader.open_file', mock.mock_open(read_data=test_in), create=True):

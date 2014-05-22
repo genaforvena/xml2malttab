@@ -118,7 +118,7 @@ class Translator(object):
                     l = word[1].link if word[1].dom else 'ROOT'
                     d = str(word[1].dom)
                     f.write('\t'.join([w, p, d, l]).encode("utf-8"))
-                    f.write('')
+                    f.write('\n')
         return filename
 
 
