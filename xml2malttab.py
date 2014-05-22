@@ -85,13 +85,13 @@ class Translator(object):
 
     def __init__(self, output = "corpus"):
         self._output = output
-        self._files_limit = 1000
+        self._files_limit = 100
         self._test_set = None
         self._train_set = None
 
     def translate(self, files):
         corpus = []
-        for file in files[0:800]:
+        for file in files[0:self._files_limit]:
             R = Reader()
             sentences = R.read(file)
             corpus.extend(sentences)
@@ -113,7 +113,6 @@ class Translator(object):
         with open(filename, "w+") as f:
             for sentence in list_to_print:
                 for word in sentence:
-                    if len(word) < 2: continue
                     w = word[0] or 'FANTOM'
                     p = '.'.join([word[1].pos] + sorted(word[1].feat & selected_feat))
                     l = word[1].link if word[1].dom else 'ROOT'
