@@ -22,7 +22,7 @@ class TranslatorTest(unittest.TestCase):
             self.lines = f.readlines()
 
     def test_translate_validInput_shouldOutputValidLines(self):
-        test_out_first_line = 'Кабинет\tS\t2\tпредик\n'
+        test_out_first_line = 'Кабинет\tS.m.nom.sg\t2\tпредик\n'
         self.assertEqual(test_out_first_line, self.lines[0])
 
     def test_translate_validInput_shouldContainNewLineBetweenSentences(self):
