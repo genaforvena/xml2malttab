@@ -108,12 +108,20 @@ class Translator(object):
     def print_test_set(self):
         return self._print_to_file(self._test_set, self.test_set_postfix)
 
+    def in_english(self, feat_set):
+        en_feat_list = []
+        for feat in feat_set:
+            if unicode(feat) in feat_ru_en.keys():
+                en_feat_list.append(feat_ru_en[feat])
+        return set(en_feat_list)
+
     def _print_to_file(self, list_to_print, out_postfix):
         filename = self._output + out_postfix + ".conll"
         with open(filename, "w+") as f:
             for sentence in list_to_print:
                 for word in sentence:
                     w = word[0] or 'FANTOM'
+                    # translated_feat = self.in_english()
                     p = '.'.join([word[1].pos] + sorted(word[1].feat & selected_feat))
                     l = word[1].link if word[1].dom else 'ROOT'
                     d = str(word[1].dom)
