@@ -119,6 +119,7 @@ class Translator(object):
                     d = str(word[1].dom)
                     f.write('\t'.join([w, p, d, l]).encode("utf-8"))
                     f.write('\n')
+                f.write('\n')
         return filename
 
 
