@@ -80,6 +80,7 @@ class Reader(object):
         return open(filename)
 
 class Translator(object):
+    extention = ".tab"
     train_set_postfix = "_train"
     test_set_postfix = "_test"
 
@@ -116,7 +117,7 @@ class Translator(object):
         return set(en_feat_list)
 
     def _print_to_file(self, list_to_print, out_postfix, train=True):
-        filename = self._output + out_postfix + ".conll"
+        filename = self._output + out_postfix + self.extention
         with open(filename, "w+") as f:
             for sentence in list_to_print:
                 for word in sentence:
