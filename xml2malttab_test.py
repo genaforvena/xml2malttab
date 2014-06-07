@@ -7,7 +7,7 @@ from xml2malttab import *
 import unittest
 import mock
 import os
-import sys
+
 
 class TranslatorTest(unittest.TestCase):
     filename = None
@@ -29,13 +29,6 @@ class TranslatorTest(unittest.TestCase):
     def test_translate_validInput_shouldContainNewLineBetweenSentences(self):
         self.setUp_transaltor()
         self.assertIn("\n", self.lines)
-
-    # def test_in_english_russianSetInput_shouldReturnEnglishSet(self):
-    #     set_should_be = set(["m", "nom", "sg", "inan"])
-    #     translator = Translator()
-    #     translated_set = translator.in_english(set(["ЕД", "МУЖ", "ИМ", "НЕОД"]))
-    #
-    #     self.assertEqual(set_should_be, translated_set)
 
     def tearDown(self):
         try:

@@ -2,8 +2,9 @@
 __author__ = 'imozerov'
 from collections import namedtuple
 
-selected_feat = set(['m', 'f', 'n', 'sg', 'pl', '1p', '2p', '3p', 'nom', 'gen', 'gen2', 'dat', 'acc', 'ins', 'prep', 'loc',
-                 'real', 'imp', 'pass', 'comp', 'shrt'])
+selected_feat = set(
+    ['m', 'f', 'n', 'sg', 'pl', '1p', '2p', '3p', 'nom', 'gen', 'gen2', 'dat', 'acc', 'ins', 'prep', 'loc',
+     'real', 'imp', 'pass', 'comp', 'shrt'])
 
 word_t = namedtuple('word_t', ['lemma', 'pos', 'feat', 'id', 'dom', 'link'])
 feat_ru_en = {

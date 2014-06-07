@@ -79,12 +79,13 @@ class Reader(object):
     def open_file(self, filename):
         return open(filename)
 
+
 class Translator(object):
     extention = ".tab"
     train_set_postfix = "_train"
     test_set_postfix = "_test"
 
-    def __init__(self, output = "corpus"):
+    def __init__(self, output="corpus"):
         self._output = output
         self._files_limit = 100
         self._test_set = None
@@ -107,7 +108,7 @@ class Translator(object):
         return self._print_to_file(self._train_set, self.train_set_postfix)
 
     def print_test_set(self):
-        return self._print_to_file(self._test_set, self.test_set_postfix, False)
+        return self._print_to_file(self._test_set, self.test_set_postfix)
 
     def in_english(self, feat_set):
         en_feat_list = []
@@ -116,19 +117,16 @@ class Translator(object):
                 en_feat_list.append(feat_ru_en[feat])
         return set(en_feat_list)
 
-    def _print_to_file(self, list_to_print, out_postfix, train=True):
+    def _print_to_file(self, list_to_print, out_postfix):
         filename = self._output + out_postfix + self.extention
         with open(filename, "w+") as f:
             for sentence in list_to_print:
                 for word in sentence:
                     w = word[0] or 'FANTOM'
                     p = '.'.join([word[1].pos] + sorted(word[1].feat & selected_feat))
-                    if train:
-                        l = word[1].link if word[1].dom else 'ROOT'
-                        d = str(word[1].dom)
-                        f.write('\t'.join([w, p, d, l]).encode("utf-8"))
-                    else:
-                        f.write('\t'.join([w, p]).encode("utf-8"))
+                    l = word[1].link if word[1].dom else 'ROOT'
+                    d = str(word[1].dom)
+                    f.write('\t'.join([w, p, d, l]).encode("utf-8"))
                     f.write('\n')
                 f.write('\n')
         return filename
